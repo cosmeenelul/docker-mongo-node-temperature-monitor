@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry Pi - Monitorizare Temperatură</title>
+    <style>
+        :root {
+            --primary: #c51162;
+            --secondary: #311b92;
+            --bg: #f5f5f5;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: var(--secondary); margin-bottom: 10px; }
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .btn-post { background-color: var(--primary); color: white; }
+        .btn-get { background-color: var(--secondary); color: white; }
+        button:hover { transform: scale(1.05); opacity: 0.9; }
+
+        .status { margin: 10px 0; font-size: 0.9em; color: #666; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+        th { background-color: #eee; color: #333; }
+        tr:hover { background-color: #f9f9f9; }
+        .temp-val { font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Monitor Pi</h1>
+        <p>Interacțiune Node.js + MongoDB</p>
+
+        <div class="controls">
+            <button class="btn-post" onclick="trimiteDate()">Trimite Temperatură (POST)</button>
+            <button class="btn-get" onclick="incarcaDatele()">Actualizează (GET)</button>
+        </div>
+
+        <div id="status-msg" class="status">Așteptare acțiune...</div>
+
+        <table id="tabel-rezultate">
+            <thead>
+                <tr>
+                    <th>Data / Ora</th>
+                    <th>Temp. (°C)</th>
+                </tr>
+            </thead>
+            <tbody id="lista-temp">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        const statusMsg = document.getElementById('status-msg');
+
+        // 1. FUNCȚIA POST - Trimite date către server
+        async function trimiteDate() {
+            statusMsg.innerText = "Se trimit datele...";
+            
+            // Generăm o temperatură random (sau poți modifica serverul să citească real)
+            const tempSimulata = (Math.random() * (65 - 40) + 40).toFixed(1);
+
+            try {
+                const response = await fetch('/api/temperatura', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temperatura: tempSimulata })
+                });
+
+                const data = await response.json();
+                statusMsg.innerText = "Succes! Document salvat cu ID: " + data.id.substring(0, 8) + "...";
+                
+                // După POST, facem automat GET pentru refresh
+                incarcaDatele();
+            } catch (error) {
+                statusMsg.innerText = "Eroare la POST: " + error.message;
+            }
+        }
+
+        // 2. FUNCȚIA GET - Cere datele de la server
+        async function incarcaDatele() {
+            try {
+                const response = await fetch('/api/temperatura');
+                const date = await response.json();
+                
+                const tbody = document.getElementById('lista-temp');
+                tbody.innerHTML = ""; // Curățăm tabelul
+
+                date.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${new Date(item.data).toLocaleString('ro-RO')}</td>
+                            <td class="temp-val">${item.valoare}°C</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                if(date.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='2'>Nicio dată găsită în DB.</td></tr>";
+                }
+            } catch (error) {
+                statusMsg.innerText = "Eroare la GET: " + error.message;
+            }
+        }
+
+        // Încărcăm datele automat la prima deschidere a paginii
+        window.onload = incarcaDatele;
+    </script>
+</body>
+</html>

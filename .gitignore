@@ -1,0 +1,4 @@
+node_modules/
+aws/
+awscliv2.zip
+.env

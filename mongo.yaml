@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+  mongodb:
+    image: mongo:4.4.18
+    container_name: mongo-db
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - mongo-network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express-name
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      # Formatul corect: mongodb://USER:PAROLA@NUME_CONTAINER:PORT
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:password@mongo-db:27017
+    networks:
+      - mongo-network
+    depends_on:
+      - mongodb
+
+networks:
+  mongo-network:
+    driver: bridge
