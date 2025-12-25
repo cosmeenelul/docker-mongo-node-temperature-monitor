@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-const url = 'mongodb://admin:password@mongo-db:27017';
+const url = 'mongodb://admin:password@localhost:27017';
 const client = new MongoClient(url);
 const dbName = 'proiect_pi';
 

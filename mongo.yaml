@@ -20,7 +20,6 @@ services:
     ports:
       - 8081:8081
     environment:
-      # Formatul corect: mongodb://USER:PAROLA@NUME_CONTAINER:PORT
       - ME_CONFIG_MONGODB_URL=mongodb://admin:password@mongo-db:27017
     networks:
       - mongo-network
