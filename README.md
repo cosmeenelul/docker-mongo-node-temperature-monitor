@@ -3,6 +3,7 @@
 A professional-grade server health utility designed to monitor and log Raspberry Pi CPU temperature. This project demonstrates a modern, containerized DevOps workflow with cloud integration.
 
 ---
+![Temperature Dashboard](demo.jpg)
 
 ### 🚀 Overview
 This project is a dedicated server health utility designed to monitor and log Raspberry Pi CPU temperature. It utilizes a Node.js and Express backend to collect thermal data and stores it in a persistent MongoDB database managed via Docker Compose. The deployment process follows a professional CI/CD pipeline, where container images are built, versioned, and hosted on Amazon ECR (Elastic Container Registry), ensuring a seamless and scalable cloud-native workflow for both ARM64 and AMD64 architectures.
@@ -51,3 +52,4 @@ aws ecr get-login-password --region your-region | docker login --username AWS --
 
 docker-compose up -d
 ```
+
